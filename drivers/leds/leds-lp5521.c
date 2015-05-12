@@ -1078,7 +1078,7 @@ static int __devinit lp5521_probe(struct i2c_client *client,
 		goto fail3;
 	}
 
-   lp5521_run_led_pattern(1,chip); /* 1 : Power On pattern number of platform data */
+   //lp5521_run_led_pattern(1,chip); => neutrondev03 says stop the annoying rainbow, bro
 
 //[2013-01-03][junghoon79.kim@lge.com] sleep current issue in cal&auto test[START]
 #ifdef CONFIG_LGE_SUPPORT_MINIOS
