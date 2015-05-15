@@ -495,7 +495,7 @@ static int bahama_bt(int on)
 
 	const struct bahama_config_register *p;
 
-	u8 version;
+	int version;
 
 	const struct bahama_config_register v10_bt_on[] = {
 		{ 0xE9, 0x00, 0xFF },
