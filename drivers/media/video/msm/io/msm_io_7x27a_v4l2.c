@@ -144,6 +144,9 @@ void msm_camio_set_perf_lvl(enum msm_bus_perf_setting perf_setting)
 		break;
 	case S_PREVIEW:
 		// do nothing as axi clock/bandwidth is already set while INIT
+		update_axi_qos(MSM_AXI_QOS_PREVIEW);
+		axi_allocate(AXI_FLOW_VIEWFINDER_HI);
+
 		break;
 	case S_VIDEO:
 		break;

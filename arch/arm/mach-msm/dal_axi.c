@@ -141,6 +141,7 @@ fail_dal_attach_detach:
         return 0;
 }
 
+
 static int axi_configure_bridge_grfx_sync_mode(int bridge_mode)
 {
 	int rc;
