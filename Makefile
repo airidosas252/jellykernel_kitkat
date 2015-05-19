@@ -245,8 +245,8 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 
 HOSTCC       = gcc
 HOSTCXX      = g++
-HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer
-HOSTCXXFLAGS = -O2
+HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 -fomit-frame-pointer
+HOSTCXXFLAGS = -O3
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -351,11 +351,16 @@ CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
-CFLAGS_MODULE   =
-AFLAGS_MODULE   =
-LDFLAGS_MODULE  =
-CFLAGS_KERNEL	=
-AFLAGS_KERNEL	=
+
+MODFLAGS = -O3 -ffast-math -fgcse-lm -fgcse-sm -fsched-spec-load 
+	   -fforce-addr -fsingle-precision-constant -mtune=cortex-a5
+	   -marm -mfpu=neon-vfpv4 -mcpu=cortex-a5
+
+CFLAGS_MODULE = $(MODFLAGS) -DMODULE
+AFLAGS_MODULE = $(MODFLAGS) -DMODULE --strip-debug
+LDFLAGS_MODULE = -T $(srctree)/scripts/module-common.lds
+CFLAGS_KERNEL = $(MODFLAGS) -w
+AFLAGS_KERNEL = $(MODFLAGS) -w
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
 
@@ -368,11 +373,19 @@ LINUXINCLUDE    := -I$(srctree)/arch/$(hdr-arch)/include \
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 
-KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
-		   -fno-strict-aliasing -fno-common \
-		   -Werror-implicit-function-declaration \
-		   -Wno-format-security \
-		   -fno-delete-null-pointer-checks
+KBUILD_CFLAGS := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+		-fno-strict-aliasing -fno-common \
+		-Werror-implicit-function-declaration \
+		-Wno-format-security \
+		-fno-delete-null-pointer-checks \
+		-marm -mfloat-abi=soft -march=armv7-a \
+		-mfpu=neon -ffast-math -pipe \
+		-funswitch-loops -fpredictive-commoning \
+		-fgcse-after-reload -fno-tree-vectorize \
+		-ftree-vectorize -funsafe-math-optimizations \
+		-fsched-spec-load -mvectorize-with-neon-quad \
+		-fmodulo-sched -fmodulo-sched-allow-regmoves \
+
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
 KBUILD_AFLAGS   := -D__ASSEMBLY__
@@ -565,7 +578,7 @@ all: vmlinux
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os
 else
-KBUILD_CFLAGS	+= -O2
+KBUILD_CFLAGS	+= -O3
 endif
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
